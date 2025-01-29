@@ -19,7 +19,7 @@ int second_lar (int arr[], int n) {
 
 int main() {
     int arr[] = {10, 20, 30, 40, 50, 60, 70, 100};
-    int len = seizeof(arr)/sizeof(arr[0]);
+    int len = sizeof(arr)/sizeof(arr[0]);
 
     int sec_lar = second_lar(arr, len);
 
