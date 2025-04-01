@@ -29,6 +29,11 @@ int main(){
   int size = count(head);
   printf("The list has %d number of nodes\n", size);
 
+  printf("\nSorting the Linked List...\n");
+  bubble_sort(&head);
+  printf("Sorted Linked List: ");
+  display(head);
+
   clear_list(&head);
   assert(head == NULL);
 

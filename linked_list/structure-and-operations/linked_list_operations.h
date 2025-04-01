@@ -11,3 +11,4 @@ void add_after_n(Node *head, int node_num, int val);
 void append(Node **head, int val);
 int count(Node *head);
 void clear_list(Node **head);
+void bubble_sort(struct Node **head);

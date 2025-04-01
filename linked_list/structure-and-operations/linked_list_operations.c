@@ -155,4 +155,28 @@ void clear_list(struct Node **head) {
 }
 
 
+void bubble_sort(struct Node **head){
+    int swapped;
+    struct Node *current;
+    struct Node *last = NULL;
 
+    if (*head == NULL){
+        return;
+    }
+    
+    do {
+        swapped = 0;
+        current = *head;
+
+        while (current->next != last){
+            if (current->value > current->next->value){
+                int temp = current->value;
+                current->value = current->next->value;
+                current->next->value = temp;
+                swapped = 1;
+            }
+            current = current->next;
+        }
+        last = current;
+    } while(swapped);
+}
