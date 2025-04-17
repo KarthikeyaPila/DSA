@@ -1,5 +1,8 @@
 main:
-	gcc main.c linked_list_operations.c -o bin && ./bin
+	gcc main.c -o bin && ./bin
 
 add: 
 	git add .
+
+linked_list: 
+	gcc -c x	linked_list.c -o linked_list.o

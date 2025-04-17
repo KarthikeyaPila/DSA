@@ -7,6 +7,8 @@ typedef struct list{
     int value;
 } list; 
 
+void list_free(list* list);
+size_t list_len(const list* list);
 
 // Create: 
 
@@ -16,69 +18,87 @@ list* list_new(){
 }
 
 //make a list with an array.
-list* list_create(int *arr, size_t len){
-    list* head = malloc(sizeof(list));
-    struct list *current = head;
-    int value;
+list* list_create(int *arr, size_t len) {
+    if(len == 0) {
+        return NULL;
+    }
 
-    for(int i=0; i<len; i++){
+    list* head = malloc(sizeof(list));
+    list* current = head;
+
+    for (size_t i = 0; i < len; i++) {
         current->value = arr[i];
-        if(i == len-1){
+        if (i < len - 1) {
+            current->next = malloc(sizeof(list));
+            current = current->next;
+        } else {
             current->next = NULL;
         }
-        else {
-            current->next = malloc(sizeof(struct list));
-        }
-        current = current->next;
     }
 
     return head;
 }
 
 // insert a new node at a given node_number.
-list* list_insert(list* list, size_t index, int val){
-    struct list *current = list;
-   
-    for(int i=0; i<index-1; i++){
-        current = current->next;
-
-        if(current == NULL){
-            printf("You've reached the end.\n");
-            return list;
+list* list_insert(list* list, size_t index, int val) {
+    if (index == 0) {
+        struct list* new_node = malloc(sizeof(list));
+        if (!new_node) {
+            printf("Memory allocation failed\n");
+            return NULL;
         }
+        new_node->value = val;
+        new_node->next = list;
+        return new_node;
     }
 
-    struct list *temp = malloc(sizeof(struct list));
-    if (temp == NULL) {
-        printf("Memory allocation failed.\n");
+    struct list* current = list;
+    for (size_t i = 0; i < index - 1; i++) {
+        if (!current) {
+            printf("Index out of bounds\n");
+            return list;  // No change made to the list
+        }
+        current = current->next;
+    }
+
+    struct list* new_node = malloc(sizeof(list));
+    if (!new_node) {
+        printf("Memory allocation failed\n");
         return list;
     }
+    new_node->value = val;
+    new_node->next = current->next;
+    current->next = new_node;
 
-    temp->value = val;
-    temp->next = current->next;        
-    current->next = temp;
-
-    return list; 
+    return list;
 }
+
 
 
 // Read: 
 
 // get the index value
 int list_get(list* list, size_t index){
-    int x = 0; 
-    int result; 
-    do{
-        list = list->next; 
-        x++;
-    }while(x!=index);
+    if (list == NULL){
+        return -1;
+    }
 
-    result = list->value;
-    return result; 
+    size_t x = 0;
+    while (list != NULL && x < index) {
+        list = list->next;
+        x++;
+    }
+
+    if (list == NULL){
+        return -1;
+    }
+    
+    return list->value;
 }
 
+
 // return the size of the linked list
-size_t list_len(list* list){
+size_t list_len(const list* list){
     
     size_t size=0;
     while(list != NULL){
@@ -111,9 +131,9 @@ void list_print(list* list){
 // Update: 
 // update the value of the given node. 
 int list_update(list* list, size_t index, int value){
-    int previous_val = value; 
-
+    
     struct list *current = list;
+    int previous_val = current->value; 
     
     for(int i=0; i<index; i++){
         current = current->next;
@@ -129,41 +149,38 @@ int list_update(list* list, size_t index, int value){
 }
 
 //Delete
-int  list_remove(list* list, size_t index){
-    struct list *current = list;
-    int val;
-
-    if(index == 0){  // Head node removal
-        struct list *temp = list;
-        val = list->value;
-        list = (list)->next;
-        free(temp);
-        return val;
+int list_remove(list** list, size_t index) {
+    if (*list == NULL) {
+        printf("The list is empty.\n");
+        return -1;
     }
 
-    for(int i=0; i<index-1; i++){
-        if(current == NULL || current->next == NULL) {
-            printf("Out of bounds\n");
-            return 0;
-        }
+    struct list* current = *list;
+    if (index == 0) {
+        *list = current->next;
+        int removed_val = current->value;
+        free(current);
+        return removed_val;
+    }
+
+    for (size_t i = 0; current != NULL && i < index - 1; i++) {
         current = current->next;
     }
 
-    struct list *temp = current->next;
-
-    if(temp == NULL) {  // delete beyond the last node
-        printf("Out of bounds\n");
-        return 0;
+    if (current == NULL || current->next == NULL) {
+        printf("Index out of bounds.\n");
+        return -1;
     }
 
-    val = temp->value;
+    struct list* temp = current->next;
     current->next = temp->next;
-    
+    int removed_val = temp->value;
     free(temp);
-    return val; 
+
+    return removed_val;
 }
 
-// free the whole linked list.
+
 void list_free(list* list){
     struct list *temp;
 
@@ -175,7 +192,7 @@ void list_free(list* list){
 
     list = NULL;
 }
-
+    
 // sort the linked list.
 list* list_sort(struct list *list){
     int swapped;
@@ -183,7 +200,7 @@ list* list_sort(struct list *list){
     struct list *last = NULL;
 
     if (list == NULL){
-        return;
+        return NULL;
     }
     
     do {
@@ -203,42 +220,4 @@ list* list_sort(struct list *list){
     } while(swapped);
 
     return list;
-}
-
-int main(){
-    int arr[] = {1,234,1,234,1,51,25,16,1};
-    size_t len = sizeof(arr)/sizeof(arr[0]);
-
-    list* l = list_new();
-    list_print(l);
-
-    l = list_create(arr, len);
-    list_print(l);
-
-    l = list_insert(l, 4, 10);
-    list_print(l);
-
-    int get_index = 4;
-    printf("value at index: %d = %d\n", get_index, list_get(l, get_index));    
-
-    printf("the linked list is %zu elements long.\n", list_len(l));
-
-    int update_to_value = 100;
-    int updated_num = list_update(l, 4,update_to_value);
-    printf("updated the value from %d to %d.\n", updated_num, list_get(l, 4));
-    list_print(l);
-
-    int removal_index = 4;
-    printf("removed index: %d with value: %d.\n", removal_index, list_remove(l, removal_index));
-    list_print(l);
-
-    removal_index = 5;
-    printf("removed index: %d with value: %d.\n", removal_index, list_remove(l, removal_index));
-    list_print(l);
-
-    list_sort(l);
-    list_print(l);
-
-    list_free(l);
-    return 0;
 }
