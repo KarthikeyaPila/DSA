@@ -1,4 +1,5 @@
 *.out
 *.exe
-ll_struct.c
 bin
+linked_list_bin
+linked_list.o
